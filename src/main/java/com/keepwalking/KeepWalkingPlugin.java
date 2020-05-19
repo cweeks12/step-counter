@@ -14,13 +14,13 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.ui.overlay.OverlayManager;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Example"
+	name = "Keep Walking"
 )
 public class KeepWalkingPlugin extends Plugin
 {
@@ -31,36 +31,54 @@ public class KeepWalkingPlugin extends Plugin
 	private KeepWalkingConfig config;
 
 	@Inject
-	private SessionManager sessionManager;
+	private OverlayManager overlayManager;
+
+	@Inject
+	private KeepWalkingOverlay overlay;
 
 	private Player currentPlayer;
 	private WorldPoint previousLocation;
 
 	private int allowedSteps;
-
-	Timer shutdownTimer = new Timer();
+	private int initialGoal;
+	private boolean firstLoad;
 
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.info("Example started!");
 		previousLocation = new WorldPoint(0,0,0);
-		allowedSteps = 10;
+		allowedSteps = config.StepTotal();
+
+		overlayManager.add(overlay);
+
+		firstLoad = true;
+
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
-		log.info("Example stopped!");
+		overlayManager.remove(overlay);
+		firstLoad = false;
 	}
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
+
 		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
 		{
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
 			currentPlayer = client.getLocalPlayer();
+
+
+			if (firstLoad){
+				client.addChatMessage(ChatMessageType.BROADCAST, "", "DON'T FORGET TO CONFIGURE YOUR STEP COUNT BEFORE PLAYING.", null);
+				firstLoad = false;
+				allowedSteps = config.StepTotal();
+				initialGoal = allowedSteps;
+			}
+
+
 		}
 	}
 
@@ -77,36 +95,35 @@ public class KeepWalkingPlugin extends Plugin
 		if (potentialDistance > 100){
 			return 0;
 		}
-		return potentialDistance;
-	}
 
-//	class ShutdownTask extends TimerTask {
-//		public void run(){
-//			shutdownTimer.cancel();
-//			client.stopNow();
-//
-//		}
-//	}
+		// Multiply by configured steps per tile before returning.
+		return potentialDistance * config.StepsPerTile();
+	}
 
 	@Subscribe
 	public void onClientTick(ClientTick clientTick)
 	{
+
+		if (initialGoal != config.StepTotal()){
+			allowedSteps = config.StepTotal();
+
+			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "",
+					"Steps available updated to " + String.valueOf(allowedSteps), null);
+
+			initialGoal = config.StepTotal();
+		}
 		WorldPoint currentLocation = currentPlayer.getWorldLocation();
 
 		if (!areTheSameLocation(previousLocation, currentLocation)){
 
 			int distanceTravelledThisTick = distanceDelta(previousLocation, currentLocation);
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "",
-					"You travelled: "+ String.valueOf(distanceTravelledThisTick) +
-							"tiles.", null);
 
 			previousLocation = currentLocation;
 
 			allowedSteps -= distanceTravelledThisTick;
 
 			if (allowedSteps <= 0){
-				client.addChatMessage(ChatMessageType.BROADCAST, "", "YOU'RE OUT OF STEPS. THE CLIENT WILL SHUT DOWN IN 10 SECONDS", null);
-				//shutdownTimer.schedule(new ShutdownTask(), 2*1000);
+				client.addChatMessage(ChatMessageType.BROADCAST, "", "YOU'RE OUT OF STEPS. PLEASE LOG OUT.", null);
 			}
 		}
 	}
@@ -115,5 +132,9 @@ public class KeepWalkingPlugin extends Plugin
 	KeepWalkingConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(KeepWalkingConfig.class);
+	}
+
+	public int getAllowedSteps(){
+		return allowedSteps;
 	}
 }
