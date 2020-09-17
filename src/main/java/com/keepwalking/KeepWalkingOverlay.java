@@ -16,28 +16,36 @@ public class KeepWalkingOverlay extends OverlayPanel {
     private final KeepWalkingPlugin plugin;
 
     @Inject
-    KeepWalkingOverlay(KeepWalkingPlugin pluginIn, KeepWalkingConfig configIn){
+    KeepWalkingOverlay(KeepWalkingPlugin pluginIn, KeepWalkingConfig configIn) {
         super(pluginIn);
         setPosition(OverlayPosition.TOP_RIGHT);
         this.config = configIn;
         this.plugin = pluginIn;
 
-        //Not actually sure what this does
-        getMenuEntries().add(new OverlayMenuEntry(MenuAction.RUNELITE_OVERLAY_CONFIG, OverlayManager.OPTION_CONFIGURE, "Keep Walking Overlay"));
+        // Not actually sure what this does, but I copied it from another plugin
+        getMenuEntries().add(new OverlayMenuEntry(MenuAction.RUNELITE_OVERLAY_CONFIG, OverlayManager.OPTION_CONFIGURE,
+                "Keep Walking Overlay"));
 
     }
 
     @Override
     public Dimension render(Graphics2D graphics) {
 
-       boolean inTrouble = this.plugin.getAllowedSteps() > 0;
+        // If you don't want to show it, return a null Dimension
+        if (!config.ShowSteps()) {
+            return null;
+        }
 
-       String remainingSteps = String.valueOf(this.plugin.getAllowedSteps()) + " steps (" +
-                                String.valueOf(this.plugin.getAllowedSteps() / this.config.StepsPerTile()) + " tiles)";
+        // Have you achieved your goal?
+        boolean goalComplete = this.plugin.getSteps() >= this.plugin.getGoal();
 
-       panelComponent.getChildren().add(TitleComponent.builder()
+        // String to display
+        String remainingSteps = this.plugin.getSteps() + " steps of " +
+                this.plugin.getGoal() + " goal";
+
+        panelComponent.getChildren().add(TitleComponent.builder()
                 .text(remainingSteps)
-                .color(inTrouble ? Color.WHITE : Color.RED)
+                .color(goalComplete ? Color.GREEN : Color.WHITE)
                 .build());
 
         panelComponent.setPreferredSize(new Dimension(
