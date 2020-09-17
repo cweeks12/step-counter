@@ -1,11 +1,11 @@
-package com.keepwalking;
+package com.stepcounter;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
 @ConfigGroup("Step Counter")
-public interface KeepWalkingConfig extends Config
+public interface StepCounterConfig extends Config
 {
 
 	@ConfigItem(position = 1,

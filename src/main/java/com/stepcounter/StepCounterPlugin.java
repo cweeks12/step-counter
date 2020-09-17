@@ -1,4 +1,4 @@
-package com.keepwalking;
+package com.stepcounter;
 
 import com.google.inject.Provides;
 
@@ -20,18 +20,18 @@ import net.runelite.client.ui.overlay.OverlayManager;
 @PluginDescriptor(
         name = "Step Counter"
 )
-public class KeepWalkingPlugin extends Plugin {
+public class StepCounterPlugin extends Plugin {
     @Inject
     private Client client;
 
     @Inject
-    private KeepWalkingConfig config;
+    private StepCounterConfig config;
 
     @Inject
     private OverlayManager overlayManager;
 
     @Inject
-    private KeepWalkingOverlay overlay;
+    private StepCounterOverlay overlay;
 
     private WorldPoint previousLocation;
 
@@ -129,8 +129,8 @@ public class KeepWalkingPlugin extends Plugin {
     }
 
     @Provides
-    KeepWalkingConfig provideConfig(ConfigManager configManager) {
-        return configManager.getConfig(KeepWalkingConfig.class);
+    StepCounterConfig provideConfig(ConfigManager configManager) {
+        return configManager.getConfig(StepCounterConfig.class);
     }
 
 

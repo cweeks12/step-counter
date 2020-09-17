@@ -1,4 +1,4 @@
-package com.keepwalking;
+package com.stepcounter;
 
 import net.runelite.api.MenuAction;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -10,13 +10,13 @@ import net.runelite.client.ui.overlay.components.TitleComponent;
 import javax.inject.Inject;
 import java.awt.*;
 
-public class KeepWalkingOverlay extends OverlayPanel {
+public class StepCounterOverlay extends OverlayPanel {
 
-    private final KeepWalkingConfig config;
-    private final KeepWalkingPlugin plugin;
+    private final StepCounterConfig config;
+    private final StepCounterPlugin plugin;
 
     @Inject
-    KeepWalkingOverlay(KeepWalkingPlugin pluginIn, KeepWalkingConfig configIn) {
+    StepCounterOverlay(StepCounterPlugin pluginIn, StepCounterConfig configIn) {
         super(pluginIn);
         setPosition(OverlayPosition.TOP_RIGHT);
         this.config = configIn;
