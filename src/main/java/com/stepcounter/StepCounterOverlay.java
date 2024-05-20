@@ -42,10 +42,13 @@ public class StepCounterOverlay extends OverlayPanel {
         // String to display
         String remainingSteps = this.plugin.getSteps() + " steps of " +
                 this.plugin.getGoal() + " goal";
+        if (this.plugin.getGoal() == 0) {
+            remainingSteps = this.plugin.getSteps() + " steps";
+        }
 
         panelComponent.getChildren().add(TitleComponent.builder()
                 .text(remainingSteps)
-                .color(goalComplete ? Color.GREEN : Color.WHITE)
+                .color((goalComplete && this.plugin.getGoal() != 0) ? Color.GREEN : Color.WHITE)
                 .build());
 
         panelComponent.setPreferredSize(new Dimension(
