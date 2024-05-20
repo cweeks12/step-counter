@@ -11,7 +11,7 @@ public interface StepCounterConfig extends Config
 	@ConfigItem(position = 1,
 	keyName = "StepGoal",
 	name = "Step Goal",
-	description = "This is how many steps you want to take today")
+	description = "This is how many steps you want to take today. Use '0' for no goal.")
 	default int StepGoal(){
 		return 10000;
 	}
